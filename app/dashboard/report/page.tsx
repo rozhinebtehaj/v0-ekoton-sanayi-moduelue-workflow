@@ -16,118 +16,28 @@ import {
   Clock,
   AlertCircle,
   Lightbulb,
+  RefreshCw,
 } from "lucide-react"
-
-const actionPlan = {
-  shortTerm: [
-    {
-      title: "LED Aydınlatmaya Geçiş",
-      description: "Tüm tesislerde LED aydınlatma sistemine geçiş",
-      timeline: "3 ay",
-      cost: "Düşük",
-      impact: "Orta",
-      category: "Enerji",
-    },
-    {
-      title: "Atık Ayrıştırma Sistemi",
-      description: "Kapsamlı atık ayrıştırma ve geri dönüşüm programı",
-      timeline: "2 ay",
-      cost: "Düşük",
-      impact: "Yüksek",
-      category: "Atık",
-    },
-    {
-      title: "Su Tasarrufu Uygulamaları",
-      description: "Su tasarruflu armatürler ve sızıntı kontrolü",
-      timeline: "1 ay",
-      cost: "Düşük",
-      impact: "Orta",
-      category: "Su",
-    },
-  ],
-  mediumTerm: [
-    {
-      title: "Enerji İzleme Sistemi",
-      description: "Otomatik enerji izleme ve raporlama sistemi kurulumu",
-      timeline: "6 ay",
-      cost: "Orta",
-      impact: "Yüksek",
-      category: "Enerji",
-    },
-    {
-      title: "Tedarikçi Değerlendirme",
-      description: "Sürdürülebilirlik kriterlerine göre tedarikçi değerlendirme sistemi",
-      timeline: "4 ay",
-      cost: "Düşük",
-      impact: "Orta",
-      category: "Tedarik",
-    },
-    {
-      title: "Çalışan Eğitim Programı",
-      description: "Sürdürülebilirlik ve çevre bilinci eğitim programı",
-      timeline: "3 ay",
-      cost: "Düşük",
-      impact: "Yüksek",
-      category: "Eğitim",
-    },
-  ],
-  longTerm: [
-    {
-      title: "Güneş Enerjisi Sistemi",
-      description: "Çatı üstü güneş paneli sistemi kurulumu",
-      timeline: "12 ay",
-      cost: "Yüksek",
-      impact: "Çok Yüksek",
-      category: "Enerji",
-    },
-    {
-      title: "Sıfır Atık Sertifikasyonu",
-      description: "Sıfır atık belgesi için gerekli altyapı ve süreçler",
-      timeline: "18 ay",
-      cost: "Orta",
-      impact: "Çok Yüksek",
-      category: "Atık",
-    },
-    {
-      title: "Döngüsel Ekonomi Modeli",
-      description: "Ürün tasarımında döngüsel ekonomi prensiplerinin uygulanması",
-      timeline: "24 ay",
-      cost: "Yüksek",
-      impact: "Çok Yüksek",
-      category: "Döngüsel",
-    },
-  ],
-}
-
-const recommendations = [
-  {
-    category: "Enerji Verimliliği",
-    priority: "Yüksek",
-    description:
-      "Enerji tüketiminizi %20-30 azaltmak için LED aydınlatma, verimli motorlar ve ısı geri kazanım sistemleri kurun.",
-    benefits: ["Yıllık 50.000 TL tasarruf", "CO2 emisyonunda %25 azalma", "Enerji bağımsızlığı"],
-  },
-  {
-    category: "Su Yönetimi",
-    priority: "Orta",
-    description:
-      "Su tüketiminizi optimize etmek için akıllı sulama, geri dönüşüm ve yağmur suyu toplama sistemleri kurun.",
-    benefits: ["Yıllık %15 su tasarrufu", "Atık su arıtma maliyeti azalması", "Çevresel etki azalması"],
-  },
-  {
-    category: "Atık Azaltma",
-    priority: "Yüksek",
-    description: "Sıfır atık hedefi için kapsamlı geri dönüşüm programı ve döngüsel tasarım prensipleri uygulayın.",
-    benefits: ["Atık maliyetlerinde %40 azalma", "Geri dönüşüm geliri", "Marka değeri artışı"],
-  },
-]
+import { useScenario } from "@/hooks/use-scenario"
 
 export default function ReportPage() {
   const [activeTab, setActiveTab] = useState("overview")
+  const { scenario, isLoading, resetScenario } = useScenario()
+
+  if (isLoading || !scenario) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Rapor yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleDownloadPDF = () => {
     // Simulate PDF download
-    alert("PDF raporu indiriliyor...")
+    alert(`${scenario.name} profili için PDF raporu indiriliyor...`)
   }
 
   const getCostColor = (cost: string) => {
@@ -138,6 +48,8 @@ export default function ReportPage() {
         return "text-yellow-600 bg-yellow-100"
       case "Yüksek":
         return "text-red-600 bg-red-100"
+      case "Çok Yüksek":
+        return "text-purple-600 bg-purple-100"
       default:
         return "text-gray-600 bg-gray-100"
     }
@@ -151,10 +63,15 @@ export default function ReportPage() {
         return "text-blue-600 bg-blue-100"
       case "Orta":
         return "text-yellow-600 bg-yellow-100"
+      case "Düşük":
+        return "text-gray-600 bg-gray-100"
       default:
         return "text-gray-600 bg-gray-100"
     }
   }
+
+  const totalActions =
+    scenario.actionPlan.shortTerm.length + scenario.actionPlan.mediumTerm.length + scenario.actionPlan.longTerm.length
 
   return (
     <div className="space-y-6">
@@ -163,8 +80,13 @@ export default function ReportPage() {
         <div>
           <h1 className="text-2xl font-bold">Dijital Öneri Raporu</h1>
           <p className="text-muted-foreground">Kişiselleştirilmiş yeşil dönüşüm eylem planınız</p>
+          <p className="text-sm text-blue-600 mt-1">Profil: {scenario.name}</p>
         </div>
         <div className="flex items-center space-x-3">
+          <Button variant="outline" size="sm" onClick={resetScenario}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Yeni Senaryo
+          </Button>
           <Button variant="outline" onClick={handleDownloadPDF}>
             <Download className="h-4 w-4 mr-2" />
             PDF İndir
@@ -190,19 +112,22 @@ export default function ReportPage() {
                 <FileText className="h-5 w-5" />
                 <span>Yönetici Özeti</span>
               </CardTitle>
+              <CardDescription>{scenario.description}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">57/100</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">{scenario.overallScore}/100</div>
                   <p className="text-sm text-muted-foreground">Genel Puan</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">12</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">{totalActions}</div>
                   <p className="text-sm text-muted-foreground">Öneri Sayısı</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">24</div>
+                  <div className="text-3xl font-bold text-purple-600 mb-2">
+                    {Math.max(...scenario.actionPlan.longTerm.map((action) => Number.parseInt(action.timeline)))}
+                  </div>
                   <p className="text-sm text-muted-foreground">Ay Süre</p>
                 </div>
               </div>
@@ -210,17 +135,31 @@ export default function ReportPage() {
               <div className="space-y-3">
                 <h4 className="font-medium">Öne Çıkan Bulgular:</h4>
                 <ul className="space-y-2 text-sm">
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                    <span>Atık yönetimi alanında güçlü performans (80/100)</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5" />
-                    <span>Yenilenebilir enerji kullanımında gelişim fırsatı (30/100)</span>
-                  </li>
+                  {scenario.assessmentData
+                    .filter((item) => item.score >= 70)
+                    .slice(0, 2)
+                    .map((item, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <span>
+                          {item.category} alanında güçlü performans ({item.score}/100)
+                        </span>
+                      </li>
+                    ))}
+                  {scenario.assessmentData
+                    .filter((item) => item.score < 50)
+                    .slice(0, 2)
+                    .map((item, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span>
+                          {item.category} alanında gelişim fırsatı ({item.score}/100)
+                        </span>
+                      </li>
+                    ))}
                   <li className="flex items-start space-x-2">
                     <TrendingUp className="h-4 w-4 text-blue-600 mt-0.5" />
-                    <span>Önerilen iyileştirmelerle %40 performans artışı bekleniyor</span>
+                    <span>Önerilen iyileştirmelerle önemli performans artışı bekleniyor</span>
                   </li>
                 </ul>
               </div>
@@ -229,12 +168,16 @@ export default function ReportPage() {
 
           {/* Key Recommendations */}
           <div className="grid md:grid-cols-3 gap-6">
-            {recommendations.map((rec, index) => (
+            {scenario.recommendations.slice(0, 3).map((rec, index) => (
               <Card key={index}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{rec.category}</CardTitle>
-                    <Badge variant={rec.priority === "Yüksek" ? "destructive" : "secondary"}>
+                    <Badge
+                      variant={
+                        rec.priority === "Yüksek" ? "destructive" : rec.priority === "Orta" ? "default" : "secondary"
+                      }
+                    >
                       {rec.priority} Öncelik
                     </Badge>
                   </div>
@@ -270,7 +213,7 @@ export default function ReportPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {actionPlan.shortTerm.map((action, index) => (
+                {scenario.actionPlan.shortTerm.map((action, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -304,7 +247,7 @@ export default function ReportPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {actionPlan.mediumTerm.map((action, index) => (
+                {scenario.actionPlan.mediumTerm.map((action, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -338,7 +281,7 @@ export default function ReportPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {actionPlan.longTerm.map((action, index) => (
+                {scenario.actionPlan.longTerm.map((action, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -364,7 +307,7 @@ export default function ReportPage() {
 
         <TabsContent value="recommendations" className="space-y-6">
           <div className="grid gap-6">
-            {recommendations.map((rec, index) => (
+            {scenario.recommendations.map((rec, index) => (
               <Card key={index}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -372,7 +315,11 @@ export default function ReportPage() {
                       <Lightbulb className="h-5 w-5 text-yellow-600" />
                       <span>{rec.category}</span>
                     </CardTitle>
-                    <Badge variant={rec.priority === "Yüksek" ? "destructive" : "secondary"}>
+                    <Badge
+                      variant={
+                        rec.priority === "Yüksek" ? "destructive" : rec.priority === "Orta" ? "default" : "secondary"
+                      }
+                    >
                       {rec.priority} Öncelik
                     </Badge>
                   </div>
@@ -406,16 +353,48 @@ export default function ReportPage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Calendar className="h-5 w-5" />
-                <span>24 Aylık Uygulama Takvimi</span>
+                <span>Uygulama Takvimi</span>
               </CardTitle>
-              <CardDescription>Önerilen eylemlerin zaman çizelgesi</CardDescription>
+              <CardDescription>Önerilen eylemlerin zaman çizelgesi ({scenario.name})</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* Timeline visualization would go here */}
-                <div className="text-center py-8 text-muted-foreground">
-                  <Calendar className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p>Detaylı zaman çizelgesi görselleştirmesi burada yer alacak</p>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-green-600">Kısa Vade (0-6 ay)</h3>
+                    <div className="space-y-2">
+                      {scenario.actionPlan.shortTerm.map((action, index) => (
+                        <div key={index} className="text-sm p-2 bg-green-50 rounded border-l-2 border-green-600">
+                          <div className="font-medium">{action.title}</div>
+                          <div className="text-muted-foreground">{action.timeline}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-blue-600">Orta Vade (6-12 ay)</h3>
+                    <div className="space-y-2">
+                      {scenario.actionPlan.mediumTerm.map((action, index) => (
+                        <div key={index} className="text-sm p-2 bg-blue-50 rounded border-l-2 border-blue-600">
+                          <div className="font-medium">{action.title}</div>
+                          <div className="text-muted-foreground">{action.timeline}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-medium text-purple-600">Uzun Vade (12+ ay)</h3>
+                    <div className="space-y-2">
+                      {scenario.actionPlan.longTerm.map((action, index) => (
+                        <div key={index} className="text-sm p-2 bg-purple-50 rounded border-l-2 border-purple-600">
+                          <div className="font-medium">{action.title}</div>
+                          <div className="text-muted-foreground">{action.timeline}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -19,36 +18,29 @@ import {
   Radar,
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { TrendingDown, Award, AlertTriangle, CheckCircle, ArrowRight } from "lucide-react"
+import { TrendingDown, Award, AlertTriangle, CheckCircle, ArrowRight, RefreshCw } from "lucide-react"
 import Link from "next/link"
-
-const assessmentData = [
-  { category: "Kurumsal Farkındalık", score: 75, maxScore: 100, status: "good" },
-  { category: "Enerji Yönetimi", score: 60, maxScore: 100, status: "medium" },
-  { category: "Su Yönetimi", score: 45, maxScore: 100, status: "low" },
-  { category: "Atık Yönetimi", score: 80, maxScore: 100, status: "good" },
-  { category: "Yenilenebilir Enerji", score: 30, maxScore: 100, status: "low" },
-  { category: "Yeşil Tedarik", score: 55, maxScore: 100, status: "medium" },
-  { category: "Döngüsel Ekonomi", score: 40, maxScore: 100, status: "low" },
-  { category: "Afet Yönetimi", score: 70, maxScore: 100, status: "good" },
-]
-
-const radarData = assessmentData.map((item) => ({
-  subject: item.category.split(" ")[0],
-  score: item.score,
-  fullMark: 100,
-}))
-
-const pieData = [
-  { name: "Güçlü Alanlar", value: 3, color: "#22c55e" },
-  { name: "Gelişim Alanları", value: 2, color: "#f59e0b" },
-  { name: "Kritik Alanlar", value: 3, color: "#ef4444" },
-]
-
-const overallScore = Math.round(assessmentData.reduce((sum, item) => sum + item.score, 0) / assessmentData.length)
+import { useScenario } from "@/hooks/use-scenario"
 
 export default function AssessmentPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const { scenario, isLoading, resetScenario } = useScenario()
+
+  if (isLoading || !scenario) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Değerlendirme sonuçları yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const radarData = scenario.assessmentData.map((item) => ({
+    subject: item.category.split(" ")[0],
+    score: item.score,
+    fullMark: 100,
+  }))
 
   const getScoreColor = (score: number) => {
     if (score >= 70) return "text-green-600"
@@ -69,10 +61,17 @@ export default function AssessmentPage() {
         <div>
           <h1 className="text-2xl font-bold">Otomatik Değerlendirme Sonuçları</h1>
           <p className="text-muted-foreground">YES-TR ve EKOTON kriterlerine göre puanlama</p>
+          <p className="text-sm text-blue-600 mt-1">Profil: {scenario.name}</p>
         </div>
-        <Badge variant="outline" className="px-3 py-1">
-          Değerlendirme Tamamlandı
-        </Badge>
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" size="sm" onClick={resetScenario}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Yeni Senaryo
+          </Button>
+          <Badge variant="outline" className="px-3 py-1">
+            Değerlendirme Tamamlandı
+          </Badge>
+        </div>
       </div>
 
       {/* Overall Score */}
@@ -80,25 +79,35 @@ export default function AssessmentPage() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold">{overallScore}/100</h2>
+              <h2 className="text-3xl font-bold">{scenario.overallScore}/100</h2>
               <p className="text-lg text-muted-foreground">Genel Puan</p>
               <div className="flex items-center space-x-2 mt-2">
-                {overallScore >= 70 ? (
+                {scenario.overallScore >= 70 ? (
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                ) : overallScore >= 50 ? (
+                ) : scenario.overallScore >= 50 ? (
                   <AlertTriangle className="h-5 w-5 text-yellow-600" />
                 ) : (
                   <TrendingDown className="h-5 w-5 text-red-600" />
                 )}
-                <span className={`font-medium ${getScoreColor(overallScore)}`}>
-                  {overallScore >= 70 ? "İyi Seviye" : overallScore >= 50 ? "Orta Seviye" : "Gelişim Gerekli"}
+                <span className={`font-medium ${getScoreColor(scenario.overallScore)}`}>
+                  {scenario.overallScore >= 70
+                    ? "İyi Seviye"
+                    : scenario.overallScore >= 50
+                      ? "Orta Seviye"
+                      : "Gelişim Gerekli"}
                 </span>
               </div>
             </div>
             <div className="text-right">
               <Award className="h-16 w-16 text-green-600 mb-2" />
               <p className="text-sm text-muted-foreground">Sertifikasyon Durumu</p>
-              <Badge className="bg-green-100 text-green-800">Uygun</Badge>
+              <Badge
+                className={
+                  scenario.overallScore >= 60 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                }
+              >
+                {scenario.overallScore >= 60 ? "Uygun" : "Gelişim Gerekli"}
+              </Badge>
             </div>
           </div>
         </CardContent>
@@ -122,7 +131,7 @@ export default function AssessmentPage() {
               className="h-[300px]"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={assessmentData}>
+                <BarChart data={scenario.assessmentData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="category" angle={-45} textAnchor="end" height={100} fontSize={12} />
                   <YAxis />
@@ -176,7 +185,7 @@ export default function AssessmentPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {assessmentData.map((item, index) => (
+            {scenario.assessmentData.map((item, index) => (
               <div key={index} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-3">
@@ -201,13 +210,13 @@ export default function AssessmentPage() {
         </CardContent>
       </Card>
 
-      {/* Recommendations Summary */}
+      {/* Scenario Info */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
             <h3 className="text-xl font-semibold">Değerlendirme Tamamlandı!</h3>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Detaylı öneriler ve eylem planınız hazır. Yeşil dönüşüm yolculuğunuzun bir sonraki adımına geçin.
+              {scenario.description}. Detaylı öneriler ve eylem planınız hazır.
             </p>
             <Link href="/dashboard/report">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700">

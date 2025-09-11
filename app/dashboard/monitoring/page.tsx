@@ -21,50 +21,7 @@ import {
   CheckCircle,
   Clock,
 } from "lucide-react"
-
-const progressData = [
-  { month: "Oca", energy: 85, water: 70, waste: 90, overall: 82 },
-  { month: "Şub", energy: 88, water: 75, waste: 92, overall: 85 },
-  { month: "Mar", energy: 90, water: 78, waste: 94, overall: 87 },
-  { month: "Nis", energy: 87, water: 80, waste: 96, overall: 88 },
-  { month: "May", energy: 92, water: 82, waste: 98, overall: 91 },
-  { month: "Haz", energy: 95, water: 85, waste: 100, overall: 93 },
-]
-
-const kpis = [
-  {
-    title: "Enerji Verimliliği",
-    current: 92,
-    target: 95,
-    trend: "up",
-    change: "+5%",
-    unit: "%",
-  },
-  {
-    title: "Su Tasarrufu",
-    current: 85,
-    target: 90,
-    trend: "up",
-    change: "+8%",
-    unit: "%",
-  },
-  {
-    title: "Geri Dönüşüm Oranı",
-    current: 100,
-    target: 100,
-    trend: "stable",
-    change: "0%",
-    unit: "%",
-  },
-  {
-    title: "Karbon Azaltımı",
-    current: 78,
-    target: 85,
-    trend: "up",
-    change: "+12%",
-    unit: "%",
-  },
-]
+import { useScenario } from "@/hooks/use-scenario"
 
 const notifications = [
   {
@@ -110,6 +67,18 @@ const upcomingTasks = [
 
 export default function MonitoringPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("6months")
+  const { scenario, isLoading, resetScenario } = useScenario()
+
+  if (isLoading || !scenario) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">İzleme verileri yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -118,8 +87,13 @@ export default function MonitoringPage() {
         <div>
           <h1 className="text-2xl font-bold">Sürekli İzleme & Güncellemeler</h1>
           <p className="text-muted-foreground">Performansınızı takip edin ve hedeflerinize ulaşın</p>
+          <p className="text-sm text-blue-600 mt-1">Profil: {scenario.name}</p>
         </div>
         <div className="flex items-center space-x-3">
+          <Button variant="outline" size="sm" onClick={resetScenario}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Yeni Senaryo
+          </Button>
           <Button variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
             Verileri Güncelle
@@ -130,7 +104,7 @@ export default function MonitoringPage() {
 
       {/* KPI Cards */}
       <div className="grid md:grid-cols-4 gap-6">
-        {kpis.map((kpi, index) => (
+        {scenario.kpis.map((kpi, index) => (
           <Card key={index}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
@@ -172,7 +146,7 @@ export default function MonitoringPage() {
         <Card>
           <CardHeader>
             <CardTitle>Performans Trendi</CardTitle>
-            <CardDescription>Son 6 aylık gelişim</CardDescription>
+            <CardDescription>Son 6 aylık gelişim ({scenario.name})</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -197,7 +171,7 @@ export default function MonitoringPage() {
               className="h-[300px]"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={progressData}>
+                <LineChart data={scenario.progressData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -219,7 +193,7 @@ export default function MonitoringPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {kpis.map((kpi, index) => (
+              {scenario.kpis.map((kpi, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">{kpi.title}</span>
