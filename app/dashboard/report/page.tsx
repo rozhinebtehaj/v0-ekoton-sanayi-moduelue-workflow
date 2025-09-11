@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
+import { ChartContainer } from "@/components/chart-container" // Import ChartContainer
 import {
   Download,
   FileText,
@@ -19,10 +20,13 @@ import {
   RefreshCw,
 } from "lucide-react"
 import { useScenario } from "@/hooks/use-scenario"
+import { generatePDFReport } from "@/lib/pdf-generator"
+import { toast } from "sonner"
 
 export default function ReportPage() {
   const [activeTab, setActiveTab] = useState("overview")
   const { scenario, isLoading, resetScenario } = useScenario()
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
 
   if (isLoading || !scenario) {
     return (
@@ -35,9 +39,19 @@ export default function ReportPage() {
     )
   }
 
-  const handleDownloadPDF = () => {
-    // Simulate PDF download
-    alert(`${scenario.name} profili için PDF raporu indiriliyor...`)
+  const handleDownloadPDF = async () => {
+    if (!scenario) return
+
+    setIsGeneratingPDF(true)
+    try {
+      await generatePDFReport(scenario)
+      toast.success("PDF raporu başarıyla oluşturuldu ve indirildi!")
+    } catch (error) {
+      console.error("PDF generation error:", error)
+      toast.error("PDF oluşturulurken bir hata oluştu.")
+    } finally {
+      setIsGeneratingPDF(false)
+    }
   }
 
   const getCostColor = (cost: string) => {
@@ -87,9 +101,13 @@ export default function ReportPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Yeni Senaryo
           </Button>
-          <Button variant="outline" onClick={handleDownloadPDF}>
-            <Download className="h-4 w-4 mr-2" />
-            PDF İndir
+          <Button variant="outline" onClick={handleDownloadPDF} disabled={isGeneratingPDF}>
+            {isGeneratingPDF ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-2"></div>
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {isGeneratingPDF ? "Oluşturuluyor..." : "PDF İndir"}
           </Button>
           <Badge className="bg-green-100 text-green-800">Rapor Hazır</Badge>
         </div>
@@ -198,6 +216,34 @@ export default function ReportPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* Assessment Charts */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <ChartContainer
+              id="assessment-bar-chart"
+              config={{
+                score: {
+                  label: "Puan",
+                  color: "hsl(var(--chart-1))",
+                },
+              }}
+              className="h-[300px]"
+            >
+              {/* Bar Chart Content */}
+            </ChartContainer>
+            <ChartContainer
+              id="assessment-radar-chart"
+              config={{
+                score: {
+                  label: "Puan",
+                  color: "hsl(var(--chart-2))",
+                },
+              }}
+              className="h-[300px]"
+            >
+              {/* Radar Chart Content */}
+            </ChartContainer>
           </div>
         </TabsContent>
 
@@ -399,6 +445,32 @@ export default function ReportPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Progress Chart */}
+          <ChartContainer
+            id="progress-line-chart"
+            config={{
+              overall: {
+                label: "Genel",
+                color: "hsl(var(--chart-1))",
+              },
+              energy: {
+                label: "Enerji",
+                color: "hsl(var(--chart-2))",
+              },
+              water: {
+                label: "Su",
+                color: "hsl(var(--chart-3))",
+              },
+              waste: {
+                label: "Atık",
+                color: "hsl(var(--chart-4))",
+              },
+            }}
+            className="h-[300px]"
+          >
+            {/* Line Chart Content */}
+          </ChartContainer>
         </TabsContent>
       </Tabs>
     </div>
