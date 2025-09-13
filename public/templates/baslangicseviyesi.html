@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EKOTON · Yeşil Dönüşüm Raporu (Başlangıç Seviyesi)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --fg:#1f2937;
+      --muted:#6b7280;
+      --brand:#0ea5a4;    /* teal */
+      --brand-2:#16a34a;  /* green */
+      --accent:#2563eb;   /* blue */
+      --warn:#f59e0b;     /* amber */
+      --surface:#f8fafc;  /* light slate */
+      --border:#e5e7eb;
+      --card:#ffffff;
+      --radius:14px;
+      --shadow:0 8px 28px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;background:var(--bg);color:var(--fg);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      line-height:1.6
+    }
+    .page{max-width:980px;margin:0 auto;padding:28px 20px}
+    header.hero{
+      display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+      padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--surface);
+    }
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+      background:radial-gradient(circle at 30% 30%, var(--brand-2), var(--brand));
+      color:#fff;font-weight:800
+    }
+    .brand h1{margin:0;font-size:20px;letter-spacing:.2px}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:13px}
+    .meta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .pill{
+      display:inline-flex;align-items:center;gap:10px;
+      border:1px solid var(--border);background:#fff;border-radius:999px;padding:8px 14px
+    }
+    .pill .dot{width:10px;height:10px;border-radius:50%;background:var(--brand)}
+    .score{
+      display:flex;gap:12px;align-items:center;border:1px solid var(--border);
+      background:#fff;border-radius:14px;padding:10px 14px
+    }
+    .score .circle{
+      width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;
+      background:conic-gradient(var(--warn) 0 162deg,#e5e7eb 162deg 360deg); /* 45% */
+      box-shadow:inset 0 0 0 6px rgba(255,255,255,.3)
+    }
+    h3.section-title{
+      margin:26px 0 12px;padding:10px 14px;background:var(--surface);
+      border-left:4px solid var(--accent);border-radius:8px;font-size:18px
+    }
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:18px
+    }
+    .grid{display:grid;gap:16px}
+    .cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media(max-width:900px){.cols-3{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.cols-2,.cols-3{grid-template-columns:1fr}}
+    .kpi{border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:12px}
+    .kpi .val{font-size:26px;font-weight:800}
+    .kpi .lbl{color:var(--muted);font-size:12px}
+    ul.clean{margin:8px 0 0 0;padding-left:18px}
+    table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    th,td{padding:10px 12px;background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+    th{font-weight:700}
+    .muted{color:var(--muted)}
+    .phase{display:flex;gap:10px;align-items:center;margin:8px 0}
+    .num{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:800}
+    .p1 .num{background:var(--warn)}
+    .p2 .num{background:var(--brand-2)}
+    .p3 .num{background:var(--accent)}
+    .small{font-size:13px}
+    footer{margin:28px 0 8px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+    .toc ol{margin:0;padding-left:18px}
+    .badge{display:inline-block;background:var(--surface);border:1px dashed var(--border);border-radius:999px;padding:6px 10px;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="brand">
+        <div class="logo">E</div>
+        <div>
+          <h1>EKOTON · Sürdürülebilir Gelecek İçin</h1>
+          <p>Yeşil Dönüşüm Raporu · Kapsamlı Sürdürülebilirlik Değerlendirmesi</p>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="pill">
+          <span class="dot"></span>
+          <span><strong>Profil:</strong> Başlangıç Seviyesi · Yeşil dönüşüme yeni başlayan işletme profili</span>
+        </div>
+        <div class="score">
+          <div class="circle">45</div>
+          <div>
+            <div style="font-weight:700">Genel Sürdürülebilirlik Puanı</div>
+            <div class="muted small">Rapor Tarihi: 13 Eylül 2025</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <h3 class="section-title">İçindekiler</h3>
+    <div class="card toc">
+      <ol>
+        <li>Yönetici Özeti</li>
+        <li>Mevcut Durum Analizi</li>
+        <li>Gelişim Planı</li>
+        <li>Yatırım Analizi</li>
+        <li>Risk Değerlendirmesi</li>
+        <li>Uygulama Yol Haritası</li>
+        <li>Grafikler ve Görselleştirmeler</li>
+        <li>Ekler</li>
+      </ol>
+    </div>
+
+    <h3 class="section-title">1. Yönetici Özeti</h3>
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="badge">Özet</div>
+        <ul class="clean">
+          <li>Yeşil dönüşüm yolculuğunun başında: temel altyapı ve kültür inşası öncelikli.</li>
+          <li>45/100 genel puan ile başlangıç seviyesinde konumlanma.</li>
+          <li>Hızlı kazanımlar: ölçümleme, farkındalık ve düşük maliyetli verimlilik projeleri.</li>
+          <li>Risk yönetimi ile sürdürülebilir büyüme mümkün.</li>
+        </ul>
+      </div>
+      <div class="grid cols-3">
+        <div class="kpi">
+          <div class="val" style="color:var(--warn)">45/100</div>
+          <div class="lbl">Genel Puan</div>
+          <div class="muted small">Sürdürülebilirlik</div>
+        </div>
+        <div class="kpi">
+          <div class="val" style="color:var(--brand-2)">0</div>
+          <div class="lbl">Güçlü Alan</div>
+          <div class="muted small">Kategori</div>
+        </div>
+        <div class="kpi">
+          <div class="val" style="color:var(--accent)">4</div>
+          <div class="lbl">Eylem Önerisi</div>
+          <div class="muted small">Toplam</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div>Bu rapor EKOTON Sürdürülebilirlik Platformu tarafından oluşturulmuştur.</div>
+      <div>Tüm hakları saklıdır. © 2024 EKOTON</div>
+    </footer>
+  </div>
+</body>
+</html>
