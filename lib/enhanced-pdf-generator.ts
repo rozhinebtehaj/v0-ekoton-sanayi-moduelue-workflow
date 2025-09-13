@@ -131,13 +131,18 @@ export class EnhancedPDFGenerator {
   }
 
   private addTitle(text: string, level: 1 | 2 | 3 = 1, color = COLORS.primary) {
-    const fontSize =
-      level === 1
-        ? FONT_CONFIG.sizes.heading1
-        : level === 2
-          ? FONT_CONFIG.sizes.heading2
-          : level === 3 ? FONT_CONFIG.sizes.heading3
-\
+    let fontSize: number
+
+    if (level === 1) {
+      fontSize = FONT_CONFIG.sizes.heading1
+    } else if (level === 2) {
+      fontSize = FONT_CONFIG.sizes.heading2
+    } else if (level === 3) {
+      fontSize = FONT_CONFIG.sizes.heading3
+    } else {
+      fontSize = FONT_CONFIG.sizes.body
+    }
+
     this.addNewPageIfNeeded(fontSize + 10)
 
     this.pdf.setFontSize(fontSize)
