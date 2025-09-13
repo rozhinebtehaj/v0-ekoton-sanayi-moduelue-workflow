@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Building2, Settings, Download, RefreshCw, Eye, BarChart3, Target, TrendingUp, Award } from "lucide-react"
 import { useScenario } from "@/hooks/use-scenario"
-import { generatePDFReport } from "@/lib/pdf-generator"
+import { generateComprehensivePDFReport } from "@/lib/enhanced-pdf-generator"
 import { toast } from "sonner"
 
 export default function ProfilePage() {
@@ -36,8 +36,8 @@ export default function ProfilePage() {
 
     setIsGeneratingPDF(true)
     try {
-      await generatePDFReport(scenario)
-      toast.success("PDF raporu başarıyla oluşturuldu ve indirildi!")
+      await generateComprehensivePDFReport(scenario)
+      toast.success("Kapsamlı PDF raporu başarıyla oluşturuldu ve indirildi!")
     } catch (error) {
       console.error("PDF generation error:", error)
       toast.error("PDF oluşturulurken bir hata oluştu.")
