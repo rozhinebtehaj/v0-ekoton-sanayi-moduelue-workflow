@@ -38,7 +38,6 @@ import {
   ArrowRight,
 } from "lucide-react"
 import { useScenario } from "@/hooks/use-scenario"
-import { generateComprehensivePDFReport } from "@/lib/enhanced-pdf-generator"
 import { getScenarioReport } from "@/lib/scenario-reports"
 import { toast } from "sonner"
 
@@ -75,11 +74,40 @@ export default function ReportPage() {
 
     setIsGeneratingPDF(true)
     try {
-      await generateComprehensivePDFReport(scenario)
-      toast.success("Kapsamlı PDF raporu başarıyla oluşturuldu ve indirildi!")
+      const pdfMap: Record<number, string> = {
+        0: "/baslangic.pdf",
+        1: "/ortaseviye.pdf",
+        2: "/ileriseviye.pdf",
+        3: "/karmaprofil.pdf",
+      }
+      const href = pdfMap[scenario.id] ?? "/baslangic.pdf"
+
+      // Fetch the file and trigger a Blob download to avoid path/base issues
+      const response = await fetch(href, { cache: "no-store" })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const contentType = response.headers.get("content-type") || ""
+      if (!contentType.toLowerCase().includes("application/pdf")) {
+        // Fallback: open directly so browser handles it
+        window.open(href, "_blank")
+        toast.message("PDF tarayıcıda açılıyor.")
+        return
+      }
+      const rawBlob = await response.blob()
+      const pdfBlob = new Blob([rawBlob], { type: "application/pdf" })
+      const url = URL.createObjectURL(pdfBlob)
+
+      const link = document.createElement("a")
+      link.href = url
+      link.download = (href.split("/").pop() || "rapor.pdf").toString()
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      // Delay revocation to ensure the download stream is established
+      setTimeout(() => URL.revokeObjectURL(url), 2000)
+      toast.success("PDF indirilmeye başlandı.")
     } catch (error) {
-      console.error("PDF generation error:", error)
-      toast.error("PDF oluşturulurken bir hata oluştu.")
+      console.error("PDF download error:", error)
+      toast.error("PDF indirilirken bir hata oluştu.")
     } finally {
       setIsGeneratingPDF(false)
     }
